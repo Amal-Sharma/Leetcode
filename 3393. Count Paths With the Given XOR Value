@@ -1,0 +1,64 @@
+/*
+You are given a 2D integer array grid with size m x n. You are also given an integer k.
+
+Your task is to calculate the number of paths you can take from the top-left cell (0, 0) to the bottom-right cell (m - 1, n - 1) satisfying the following constraints:
+
+You can either move to the right or down. Formally, from the cell (i, j) you may move to the cell (i, j + 1) or to the cell (i + 1, j) if the target cell exists.
+The XOR of all the numbers on the path must be equal to k.
+Return the total number of such paths.
+
+Since the answer can be very large, return the result modulo 109 + 7.
+
+ 
+
+Example 1:
+
+Input: grid = [[2, 1, 5], [7, 10, 0], [12, 6, 4]], k = 11
+
+Output: 3
+
+Explanation: 
+
+The 3 paths are:
+
+(0, 0) → (1, 0) → (2, 0) → (2, 1) → (2, 2)
+(0, 0) → (1, 0) → (1, 1) → (1, 2) → (2, 2)
+(0, 0) → (0, 1) → (1, 1) → (2, 1) → (2, 2)
+
+*/
+
+class Solution {
+    int mod = 1e9 + 7;
+    int dp[302][302][20];
+
+    int comp(int i, int j, int xr) {
+        if (dp[i][j][xr] != -1) 
+            return dp[i][j][xr];
+        return -1;
+
+    }
+
+    int functionForDp(int i, int j, int xr, vector<vector<int>>& grid, int k) {
+        if (i == grid.size() || j == grid[0].size()) 
+            return 0; 
+        if (i == grid.size() - 1 && j == grid[0].size() - 1) {
+            return (xr ^ grid[i][j]) == k ? 1 : 0; 
+        }
+
+
+        if (comp(i, j, xr) != -1) return dp[i][j][xr];
+
+        int newXor = xr ^ grid[i][j];
+        int r = functionForDp(i, j + 1, newXor, grid, k); 
+        int bottom = functionForDp(i + 1, j, newXor, grid, k); 
+
+
+        return dp[i][j][xr] = (r + bottom) % mod;
+    }
+
+public:
+    int countPathsWithXorValue(vector<vector<int>>& grid, int k) {
+        memset(dp, -1, sizeof(dp)); 
+        return functionForDp(0, 0, 0, grid, k);
+    }
+};
